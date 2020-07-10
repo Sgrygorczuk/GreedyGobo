@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.orczuk.greedygobo.Objects.Bishop;
 import com.orczuk.greedygobo.Objects.Coin;
 import com.orczuk.greedygobo.Objects.PlayerCharacter;
 
@@ -44,11 +45,12 @@ class MainScreen extends ScreenAdapter {
     private BitmapFont bitmapFont = new BitmapFont();
 
     private Vector<Coin> coins = new Vector<>();
+    private Vector<Bishop> bishops = new Vector<>();
 
     private boolean renderFlag = true;
-    private int score = 0;
-    private int minScore = 0;
-    private int maxScore = 5;
+    private float score = 0;
+    private float speed = 1;
+    private float maxScore = 5;
     private float size = 1;
 
     /*
@@ -115,7 +117,7 @@ class MainScreen extends ScreenAdapter {
     Purpose: Draws all of the variables on the screen
     */
     private void showObjects(){
-        player = new PlayerCharacter(WORLD_WIDTH/2, WORLD_HEIGHT/2);
+        player = new PlayerCharacter(430, 240);
     }
 
     /*
@@ -128,7 +130,7 @@ class MainScreen extends ScreenAdapter {
         //Wipes screen black
         clearScreen();
 
-        update();
+        update(delta);
 
         //setDebugMode();                 //Checks if user changed the status of the debugModeFlag
         if(renderFlag) {                     //If debugMode is on ShapeRender will drawing lines
@@ -140,19 +142,66 @@ class MainScreen extends ScreenAdapter {
         draw();
     }
 
-    private void update(){
-        updatePlayerPosition();
+    private void update(float delta){
+        updatePlayer(delta);
         updateCoin();
+        updateBishops();
     }
 
-    private void updatePlayerPosition(){
-        System.out.println(Gdx.input.getAccelerometerX() + " " + Gdx.input.getAccelerometerY() + " " + Gdx.input.getAccelerometerZ() );
+    private void updatePlayer(float delta){
+        //Before the player starts collecting coins and moving around the screen they first need to drag the gobo onto the field
+        if(!player.isInArena()) {updatePlayerStart();}
+        //Once on the field they can slide around
+        else{ updatePlayerPosition(delta); }
+    }
 
-        if (Gdx.input.getGyroscopeY() > 1 && Gdx.input.getGyroscopeZ() < -1) { player.boostY(-1); }
-        else if (Gdx.input.getGyroscopeY() < -1 && Gdx.input.getGyroscopeZ() > 1) { player.boostY(1);}
+    private void updatePlayerStart(){
+        //First we look at if the player is touching the screen
+        if (Gdx.input.isTouched()){
+            //If they are we check where
+            float touchedY = WORLD_HEIGHT - Gdx.input.getY()*WORLD_HEIGHT/Gdx.graphics.getHeight();
+            float touchedX = Gdx.input.getX()*WORLD_WIDTH/Gdx.graphics.getWidth();
+            //If they touch on top of the gobo they are now holding it
+            if(touchedY >= player.getY() && touchedY <= player.getY() + player.getHeight() && touchedX >= player.getX()  && touchedX <= player.getX() + player.getWidth() && !player.isHeld()){
+                player.setHeld(true);
+            }
+            //If gobo is being held he can be dragged around the screen
+            else if(player.isHeld()){ player.setPosition(touchedX, touchedY); }
+        }
+        //If the player lets go of gobo and he's on the field then he can slide around and interact with the objects
+        else if(player.isHeld() && player.getX() + player.getWidth() < 380){
+            player.setHeld(false);
+            player.setInArena(true);
+        }
+        //If the player lets go but gobo is not on the playing field he ports back to the spawn point
+        else if(player.isHeld()){
+            player.setHeld(false);
+            player.setPosition(430, 240);
+        }
+    }
 
-        if (Gdx.input.getGyroscopeX() > 1  && Gdx.input.getGyroscopeZ() < -1) { player.boostX(-1); }
-        else if (Gdx.input.getGyroscopeX() < -1 && Gdx.input.getGyroscopeZ() > 1) { player.boostX(1); }
+    private void updatePlayerPosition(float delta){
+        int x = (int) Gdx.input.getAccelerometerX();
+        int y = (int) Gdx.input.getAccelerometerY();
+        int z = (int) Gdx.input.getAccelerometerZ();
+
+        //While phone is held right and player is not stunned they control where they go
+        if(Math.abs(z) > Math.abs(x) && Math.abs(z) > Math.abs(y) && !player.isStunned()){
+            player.boostX(y);
+            player.boostY(-x);
+        }
+        //If the player gets hit by a priest they get stunned, they can recover by either clicking on the character or waiting it out
+        else if(player.isStunned()){
+            float hitboxIncrease = 20;
+            float touchedY = WORLD_HEIGHT - Gdx.input.getY()*WORLD_HEIGHT/Gdx.graphics.getHeight();
+            float touchedX = Gdx.input.getX()*WORLD_WIDTH/Gdx.graphics.getWidth();
+            //Clicking destuns the player
+            if(touchedY >= player.getY() - hitboxIncrease && touchedY <= player.getY() + player.getHeight() + hitboxIncrease && touchedX >= player.getX() - hitboxIncrease  && touchedX <= player.getX() + player.getWidth() + hitboxIncrease && !player.isHeld()){
+                player.deStun();
+            }
+            //Counts down till they naturally destun
+            else{ player.stunnedTimer(delta); }
+        }
 
         player.update();
     }
@@ -168,26 +217,26 @@ class MainScreen extends ScreenAdapter {
     }
 
     private void createNewCoin(){
-        //Figure out which wall it should come from
-        int direction = MathUtils.random(0,3);
-        Coin coin = new Coin(direction, MathUtils.randomBoolean(), size);
+        Coin coin = new Coin(MathUtils.randomBoolean(), size, speed);
         coins.add(coin);
     }
 
     private void removeCoin() {
         Vector<Coin> removeCoin = new Vector<>();
         for (Coin coin : coins) {
-            if (coin.getX() > WORLD_WIDTH || coin.getX() < -coin.getWidth() ||
+            if (coin.getX() > 380 || coin.getX() < -coin.getWidth() ||
             coin.getY() > WORLD_HEIGHT || coin.getY() < - coin.getHeight()) {
                 //Remove Texture
                 removeCoin.add(coin);
             }
-            else if(coin.isColliding(player)){
+            else if(coin.isColliding(player) && player.isInArena()){
                 if(coin.isGoodCoin()){
                     score += coin.getValue();
                     if(score > maxScore) {
                         maxScore += 5;
-                        size += 0.1f;
+                        //Once they're big enough we start increasing the speed for difficulty
+                        if(size < 2) {size += 0.1f;}
+                        else{speed += 0.1f;}
                         player.updateSize(size);
                     }
                 }
@@ -196,6 +245,54 @@ class MainScreen extends ScreenAdapter {
         }
         for(Coin coin : removeCoin){
             coins.remove(coin);
+        }
+    }
+
+    private void updateBishops(){
+        updateBishopsPosition();
+        if(bishops.size() < 3){ createNewBishops(); }
+        removeAndCollideBishops();
+    }
+
+    private void updateBishopsPosition(){ for(Bishop bishop : bishops) {bishop.update(bishop.getDirection()); } }
+
+    private void createNewBishops(){ bishops.add(new Bishop(MathUtils.randomBoolean(), size, speed)); }
+
+    private void removeAndCollideBishops() {
+        Vector<Bishop> removeBishop = new Vector<>();
+        for (Bishop bishop : bishops) {
+            if (bishop.getX() > 380 || bishop.getX() < -bishop.getWidth() ||
+                    bishop.getY() > WORLD_HEIGHT || bishop.getY() < - bishop.getHeight()) {
+                removeBishop.add(bishop);
+            }
+
+            if(bishop.isColliding(player) && player.isInArena()){
+                player.setStunned(true);
+                if(player.getX() < bishop.getX() + bishop.getWidth()/2f &&
+                        player.getY() < bishop.getY() + bishop.getHeight()/2f){
+                    player.boostY(-2);
+                    player.boostX(-2);
+                }
+                else if(player.getX() < bishop.getX() + bishop.getWidth()/2f &&
+                        player.getY() > bishop.getY() + bishop.getHeight()/2f){
+                    player.boostY(2);
+                    player.boostX(-2);
+                }
+                else if(player.getX() > bishop.getX() + bishop.getWidth()/2f &&
+                        player.getY() < bishop.getY() + bishop.getHeight()/2f){
+                    player.boostY(-2);
+                    player.boostX(2);
+                }
+                else{
+                    player.boostY(2);
+                    player.boostX(2);
+                }
+            }
+        }
+
+        for(Bishop bishop : removeBishop){
+            //Remove texture
+            bishops.remove(bishop);
         }
     }
 
@@ -209,6 +306,7 @@ class MainScreen extends ScreenAdapter {
         shapeRendererEnemy.setTransformMatrix(camera.view);            			                 //Screen set up camera
         shapeRendererEnemy.begin(ShapeRenderer.ShapeType.Line);         		                 //Sets up to draw lines
         for(Coin coin : coins){if(!coin.isGoodCoin()){coin.drawDebug(shapeRendererEnemy);}}
+        for(Bishop bishop: bishops){bishop.drawDebug(shapeRendererEnemy);}
         shapeRendererEnemy.end();
     }
 
@@ -254,11 +352,23 @@ class MainScreen extends ScreenAdapter {
         batch.setProjectionMatrix(camera.projection);
         batch.setTransformMatrix(camera.view);
         //Batch setting up texture
+        int x = (int) Gdx.input.getAccelerometerX();
+        int y = (int) Gdx.input.getAccelerometerY();
+        int z = (int) Gdx.input.getAccelerometerZ();
         batch.begin();
-        centerText(bitmapFont, "Score: " + score, WORLD_WIDTH/2, 300);
-        centerText(bitmapFont, "X: " + (int) Gdx.input.getAccelerometerX(), 40, 300);
-        centerText(bitmapFont, "Y: " + (int) Gdx.input.getAccelerometerY(), 40, 280);
-        centerText(bitmapFont, "Z: " + (int) Gdx.input.getAccelerometerZ(), 40, 260);
+        centerText(bitmapFont, "Score: " + (float) ((float)Math.round(score * 100.0) / 100.0), WORLD_WIDTH/2, 300);
+        centerText(bitmapFont, "X: " + x, 40, 300);
+        centerText(bitmapFont, "Y: " + y, 40, 280);
+        centerText(bitmapFont, "Z: " + z, 40, 260);
+        if(Math.abs(x) > Math.abs(y) && Math.abs(x) > Math.abs(z)){
+            centerText(bitmapFont, "Surface X", 40, 240);
+        }
+        else if(Math.abs(y) > Math.abs(x) && Math.abs(y) > Math.abs(z)){
+            centerText(bitmapFont, "Surface Y", 40, 240);
+        }
+        else if(Math.abs(z) > Math.abs(x) && Math.abs(z) > Math.abs(y)){
+            centerText(bitmapFont, "Surface Z", 40, 240);
+        }
         batch.end();
     }
 

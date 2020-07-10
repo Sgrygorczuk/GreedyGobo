@@ -1,14 +1,46 @@
 package com.orczuk.greedygobo.Objects;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
 public class ParentObject {
 
-    protected float size = 1;   //Size based on score (mods the width/height) between 0.1f-2f
-    protected int value;    //Value of the collected item
+    //Garbage constructor for player
+    ParentObject(){}
+
+    ParentObject(float baseSize, float size, float speed){
+        this.speed = speed;
+        direction = MathUtils.random(0,3);
+        value = size/baseSize;
+        float x = 0;
+        float y = 0;
+        switch (direction){
+            case 0:{
+                x = -size;
+                break;
+            }
+            case 1:{
+                x = 380+ size;
+                break;
+            }
+            case 2:{
+                y = -size;
+                break;
+            }
+            case 3:{
+                y = 320+ size;
+                break;
+            }
+        }
+        if(direction < 2){y = MathUtils.random(size,320- size);}
+        else{x = MathUtils.random(size,480- size);}
+        spawn(x, y, size, size);
+    }
+
+
+    protected float value;    //Value of the collected item
     protected float speed;  //Speed of the object
     protected int direction = 0; //0 - Up, 1 = Down, 2 = Right, 3 = Left
 
@@ -21,7 +53,7 @@ public class ParentObject {
     public float getY(){return hitBox.y;}
     public float getWidth(){return hitBox.width;}
     public float getHeight(){return hitBox.height;}
-    public int getValue(){return value;}
+    public float getValue(){return value;}
 
     public void update(int direction){
         switch (direction){
