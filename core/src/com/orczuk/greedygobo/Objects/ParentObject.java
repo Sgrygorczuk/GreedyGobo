@@ -1,5 +1,6 @@
 package com.orczuk.greedygobo.Objects;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
@@ -13,7 +14,7 @@ public class ParentObject {
     ParentObject(float baseSize, float size, float speed){
         this.speed = speed;
         direction = MathUtils.random(0,3);
-        value = size/baseSize;
+        value = MathUtils.random(1,size/baseSize);
         float x = 0;
         float y = 0;
         switch (direction){
@@ -30,7 +31,7 @@ public class ParentObject {
                 break;
             }
             case 3:{
-                y = 320+ size;
+                y = 320 + size;
                 break;
             }
         }
