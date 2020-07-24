@@ -5,105 +5,100 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-public class PlayerCharacter extends ParentObject{
+import javax.swing.SpringLayout;
+
+public class PlayerCharacter extends ParentObject {
 
     protected float width = 15;  //Width of the hit box
-    protected float height = 15;
-    private  float speedX;
+    private float oldWidth;
+    private float portalWidth = 0;
+    private float oldX;
+    private float oldY;
+    private float speedX;
     private float speedY;
     private boolean isInArena = false;
     private boolean isHeld = false;
     private boolean isStunned = false;
     private boolean isFalling = false;
     private boolean isStopped = true;
+    private int portalOpening = 0; //0 is closed, 1 is opening, 2 is closing
 
-    private TextureRegion[][] goboSpriteSheet;
     private TextureRegion holdingBagTexture;
-    private Animation frontAnimation;
-    private Animation backAnimation;
-    private Animation rightAnimation;
-    private Animation leftAnimation;
+    protected Texture portalTexture;
     private Animation stunAnimation;
     private Animation fallAnimation;
     private Animation waveAnimation;
-    private float animationTime = 0;
+
 
     //Timing variables
     private static final float STUNNED_TIME = 5F;                 //Time that the conversation box stays on screen
     private float stunnedTimer = STUNNED_TIME;                        //Counter that checks if it reached the end of time
 
 
-
-    public PlayerCharacter(float x, float y, Texture goboSpriteSheet){
+    public PlayerCharacter(float x, float y, Texture goboSpriteSheet, Texture portalTexture) {
         super();
         speed = 3;
         direction = 1; //Down
 
-        this.goboSpriteSheet = new TextureRegion(goboSpriteSheet).split(420, 420); //Breaks down the texture into tiles
+        setUpSpriteSheet(goboSpriteSheet);
+        setUpAnimation();
+        this.portalTexture = portalTexture;
 
-        setUpAnimations();
-
-        spawn(x, y, width, height);
+        spawn(x, y, width, width);
     }
 
-    void setUpAnimations(){
-        frontAnimation= new Animation<>(0.2f, this.goboSpriteSheet[0][0], this.goboSpriteSheet[0][1],
-                this.goboSpriteSheet[0][0], this.goboSpriteSheet[0][2]);
-        frontAnimation.setPlayMode(Animation.PlayMode.LOOP);
+    @Override
+    protected void setUpAnimation() {
+        //Sets up the up, down, left, right animations
+        super.setUpAnimation();
 
-        backAnimation= new Animation<>(0.2f, this.goboSpriteSheet[1][0], this.goboSpriteSheet[1][1],
-                this.goboSpriteSheet[1][0], this.goboSpriteSheet[1][2]);
-        backAnimation.setPlayMode(Animation.PlayMode.LOOP);
-
-        rightAnimation = new Animation<>(0.2f, this.goboSpriteSheet[2][0], this.goboSpriteSheet[2][1],
-                this.goboSpriteSheet[2][0], this.goboSpriteSheet[2][2]);
-        rightAnimation.setPlayMode(Animation.PlayMode.LOOP);
-
-        leftAnimation = new Animation<>(0.2f, this.goboSpriteSheet[3][0], this.goboSpriteSheet[3][1],
-                this.goboSpriteSheet[3][0], this.goboSpriteSheet[3][2]);
-        leftAnimation.setPlayMode(Animation.PlayMode.LOOP);
-
-        waveAnimation = new Animation<>(0.15f, this.goboSpriteSheet[0][3], this.goboSpriteSheet[0][4],
-                this.goboSpriteSheet[0][3], this.goboSpriteSheet[0][5]);
+        //Sets up extra animation only for player
+        waveAnimation = new Animation<>(0.15f, this.spriteSheet[0][3], this.spriteSheet[0][4],
+                this.spriteSheet[0][3], this.spriteSheet[0][5]);
         waveAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
-        stunAnimation = new Animation<>(0.15f, this.goboSpriteSheet[1][3], this.goboSpriteSheet[1][4]);
+        stunAnimation = new Animation<>(0.15f, this.spriteSheet[1][3], this.spriteSheet[1][4]);
         stunAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
-        fallAnimation = new Animation<>(0.15f, this.goboSpriteSheet[2][3], this.goboSpriteSheet[2][4]);
+        fallAnimation = new Animation<>(0.15f, this.spriteSheet[2][3], this.spriteSheet[2][4]);
         fallAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
-        holdingBagTexture = this.goboSpriteSheet[3][3];
+        holdingBagTexture = this.spriteSheet[3][3];
     }
 
-    void movedOffScreen(){
-        if(hitBox.x + hitBox.width < 0){hitBox.x = 380;}
-        else if(hitBox.x  > 380){hitBox.x = 0;}
+    void movedOffScreen() {
+        if (hitBox.x + hitBox.width < 0) {
+            hitBox.x = 380;
+        } else if (hitBox.x > 380) {
+            hitBox.x = 0;
+        }
 
-        if(hitBox.y + hitBox.height < 0){hitBox.y = 320;}
-        else if(hitBox.y > 320){hitBox.y = 0;}
+        if (hitBox.y + hitBox.height < 0) {
+            hitBox.y = 320;
+        } else if (hitBox.y > 320) {
+            hitBox.y = 0;
+        }
     }
 
-    public void setDimensions(float width, float height){
+    public void setDimensions(float width, float height) {
         hitBox.width = width;
         hitBox.height = height;
     }
 
-    public void boostY(float speed){ speedY = speed; }
+    public void boostY(float speed) { speedY = speed; }
 
-    public void boostX(float speed){ speedX = speed; }
+    public void boostX(float speed) { speedX = speed; }
 
-    public void update(float delta){
+    public void update() {
         movedOffScreen();
-        if(speedX > 0){speedX -= 0.01;}
-        else{speedX += 0.01;}
-        if(speedY > 0){speedY -= 0.01;}
-        else{speedY += 0.01;}
+        if (speedX > 0) { speedX -= 0.01; } else { speedX += 0.01; }
+        if (speedY > 0) { speedY -= 0.01; } else { speedY += 0.01; }
 
         hitBox.x += speedX;
         hitBox.y += speedY;
-        animationTime += delta;
     }
+
+    public void updateAnimation(float delta) { animationTime +=delta; }
 
     public void updateDirection(int direction){ this.direction = direction;}
 
@@ -120,6 +115,22 @@ public class PlayerCharacter extends ParentObject{
     public void setFalling(boolean isFalling){this.isFalling = isFalling;}
 
     public void setStopped(boolean isStopped){this.isStopped = isStopped;}
+
+    public float getOldWidth(){return oldWidth;}
+    public void setOldWidth(float oldWidth){this.oldWidth = oldWidth;}
+
+    public int getPortalOpening(){return portalOpening;}
+    public void setPortalOpening(int portalOpening){this.portalOpening = portalOpening;}
+
+    public float getPortalWidth(){return  portalWidth;}
+    public void setPortalWidth(float width){portalWidth = width;}
+
+    public float getOldX(){return  oldX;}
+    public float getOldY(){return  oldY;}
+    public void setOldCoordinates(float x, float y){
+        oldX = x;
+        oldY = y;
+    }
 
     public void setPosition(float x, float y){
         hitBox.x = x;
@@ -138,7 +149,7 @@ public class PlayerCharacter extends ParentObject{
 
     public void updateSize(float size){
         hitBox.width = width * size;
-        hitBox.height = height * size;
+        hitBox.height = width * size;
     }
 
     /*
@@ -176,6 +187,7 @@ public class PlayerCharacter extends ParentObject{
                 currentFrame = (TextureRegion) waveAnimation.getKeyFrame(animationTime);
             }
         }
+        if(portalOpening != 0){ batch.draw(portalTexture, oldX, oldY, portalWidth, portalWidth);}
         batch.draw(currentFrame, hitBox.x, hitBox.y, hitBox.width, hitBox.height);
     }
 

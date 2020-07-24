@@ -34,11 +34,6 @@ class MainScreen extends ScreenAdapter {
     /*
     Image processing -- Objects that modify the view and textures
     */
-    private ShapeRenderer shapeRendererEnemy;           //Creates wire frame for enemy objects
-    private ShapeRenderer shapeRendererUser;            //Creates wire frame for player object
-    private ShapeRenderer shapeRendererBackground;      //Creates wire frame for background objects
-    private ShapeRenderer shapeRendererCollectible;     //Creates wire frame for collectible objects
-
     private Viewport viewport;			 //The screen where we display things
     private Camera camera;				 //The camera viewing the viewport
     private SpriteBatch batch = new SpriteBatch();			 //Batch that holds all of the textures
@@ -53,15 +48,18 @@ class MainScreen extends ScreenAdapter {
 
     private TextureRegion[][] coinTextures;
     private Texture goboSpriteSheetTexture;
+    private Texture abbotSpriteSheetTexture;
+    private Texture knightSpriteSheetTexture;
+    private Texture backgroundTexture;
+    private Texture UITexture;
 
-    private boolean renderFlag = true;
     private float score = 0;
     private float speed = 1;
     private float maxScore = 5;
     private float size = 1;
+    private float coinBoost = 0f;
     private int lives = 3;
-    private float oldPlayerWidth;
-    private float oldPlayerHeight;
+    private float currentPlayerWidth = 15;
 
     /*
     Input: The width and height of the screen
@@ -82,7 +80,6 @@ class MainScreen extends ScreenAdapter {
     public void show() {
         showCamera();       //Set up the camera
         showTextures();
-        showRender();       //Set up all of renders
         showObjects();      //Sets up player and enemies
     }
 
@@ -102,31 +99,11 @@ class MainScreen extends ScreenAdapter {
         Texture coinTexturePath = new Texture(Gdx.files.internal("Sprites/ObjectSpriteSheet.png"));
         coinTextures = new TextureRegion(coinTexturePath).split(420, 420); //Breaks down the texture into tiles
         goboSpriteSheetTexture = new Texture(Gdx.files.internal("Sprites/GoboSpriteSheet.png"));
+        abbotSpriteSheetTexture = new Texture(Gdx.files.internal("Sprites/AbbotSpriteSheet.png"));
+        knightSpriteSheetTexture = new Texture(Gdx.files.internal("Sprites/KnightSpriteSheet.png"));
+        backgroundTexture = new Texture(Gdx.files.internal("Sprites/Background.png"));
+        UITexture = new Texture(Gdx.files.internal("Sprites/UI.png"));
     }
-
-    /*
-    Input: Void
-    Output: Void
-    Purpose: Sets up the different renders to draw objects in wireframe
-    */
-    private void showRender(){
-        //Enemy
-        shapeRendererEnemy = new ShapeRenderer();
-        shapeRendererEnemy.setColor(Color.RED);
-
-        //User
-        shapeRendererUser = new ShapeRenderer();
-        shapeRendererUser.setColor(Color.GREEN);
-
-        //Background
-        shapeRendererBackground = new ShapeRenderer();
-        shapeRendererBackground.setColor(Color.WHITE);
-
-        //Intractable
-        shapeRendererCollectible = new ShapeRenderer();
-        shapeRendererCollectible.setColor(Color.BLUE);
-    }
-
 
     /*
     Input: Void
@@ -134,8 +111,8 @@ class MainScreen extends ScreenAdapter {
     Purpose: Draws all of the variables on the screen
     */
     private void showObjects(){
-        knight = new Knight(25, speed);
-        player = new PlayerCharacter(430, 240, goboSpriteSheetTexture);
+        player = new PlayerCharacter(430, 240, goboSpriteSheetTexture, new Texture(Gdx.files.internal("Sprites/Portal.png")));
+        knight = new Knight(player.getWidth() + 5, speed, knightSpriteSheetTexture);
     }
 
     /*
@@ -149,22 +126,14 @@ class MainScreen extends ScreenAdapter {
         clearScreen();
 
         update(delta);
-
-        //setDebugMode();                 //Checks if user changed the status of the debugModeFlag
-        if(renderFlag) {                     //If debugMode is on ShapeRender will drawing lines
-            renderEnemy();              //Draws Enemy Wire Frame
-            renderUser();               //Draws User Wire Frame
-            renderBackground();         //Draws Background Wire Frame
-            renderCollectible();        //Draws Collectible Wire Frame
-        }
         draw();
     }
 
     private void update(float delta){
         updatePlayer(delta);
-        updateCoin();
-        updateBishops();
-        updateKnight();
+        updateCoin(delta);
+        updateBishops(delta);
+        updateKnight(delta);
     }
 
     private void updatePlayer(float delta){
@@ -173,6 +142,8 @@ class MainScreen extends ScreenAdapter {
         else if(player.isFalling()){updatePlayerFalling();}
         //Once on the field they can slide around
         else{ updatePlayerPosition(delta); }
+        if(player.getPortalOpening() != 0){updatePortal();}
+        player.updateAnimation(delta);
     }
 
     private void updatePlayerStart(){
@@ -203,13 +174,36 @@ class MainScreen extends ScreenAdapter {
         }
     }
 
+    private void updatePortal(){
+        if(player.getPortalOpening() == 1 && player.getPortalWidth() <=  player.getOldWidth() * 1.5){
+            player.setPortalWidth(player.getPortalWidth() + player.getOldWidth()/10f);
+            player.setOldCoordinates(player.getOldX() - player.getOldWidth()/10f, player.getOldY() - player.getOldWidth()/10f);
+        }
+        else if(player.getPortalOpening() == 2) {
+            player.setPortalWidth(player.getPortalWidth() - player.getOldWidth()/10f);
+            player.setOldCoordinates(player.getOldX() + player.getOldWidth()/15f, player.getOldY() + player.getOldWidth()/15f);
+            if(player.getPortalWidth() <= 0){
+                player.setPortalOpening(0);
+            }
+        }
+    }
+
     private void updatePlayerFalling(){
-        player.setDimensions(player.getWidth() * 0.9f, player.getHeight() * 0.9f);
-        player.setPosition(player.getX() + 0.1f, player.getY() + 0.1f);
-        if(player.getWidth() < 1) {
-            player.setFalling(false);
-            player.setPosition(430, 240);
-            player.setDimensions(oldPlayerWidth, oldPlayerHeight);
+        if(player.getPortalOpening() != 1){
+            player.setPosition(player.getX(), player.getY() - 4);
+            if(player.getY() <= 240){
+                player.setPosition(player.getX(), 240);
+                player.setFalling(false);
+            }
+        }
+        else {
+            player.setDimensions(player.getWidth() - player.getOldWidth()/100f, player.getHeight() - player.getOldWidth()/100f);
+            player.setPosition(player.getX() + player.getOldWidth()/250f, player.getY() - player.getOldWidth()/400f);
+            if (player.getWidth() < 1) {
+                player.setPosition(430, WORLD_HEIGHT + player.getOldWidth());
+                player.setDimensions(player.getOldWidth(), player.getOldWidth());
+                player.setPortalOpening(2);
+            }
         }
     }
 
@@ -219,9 +213,10 @@ class MainScreen extends ScreenAdapter {
         int z = (int) Gdx.input.getAccelerometerZ();
 
         //While phone is held right and player is not stunned they control where they go
-        if(Math.abs(z) > Math.abs(x) && Math.abs(z) > Math.abs(y) && !player.isStunned()){
+        if(z > Math.abs(x) && z > Math.abs(y) && !player.isStunned()){
             player.boostX(y);
             player.boostY(-x);
+
             if(x > 0 && x > y){player.updateDirection(0);}
             else if(x < 0 && Math.abs(x) > y){player.updateDirection(1);}
             else if(y > 0 && y > x){player.updateDirection(2);}
@@ -234,32 +229,33 @@ class MainScreen extends ScreenAdapter {
             else{player.setStopped(false);}
         }
         //If the player gets hit by a priest they get stunned, they can recover by either clicking on the character or waiting it out
-        else if(player.isStunned()){
-            float hitboxIncrease = 20;
-            float touchedY = WORLD_HEIGHT - Gdx.input.getY()*WORLD_HEIGHT/Gdx.graphics.getHeight();
-            float touchedX = Gdx.input.getX()*WORLD_WIDTH/Gdx.graphics.getWidth();
+        else if(player.isStunned()) {
+            float hitBoxIncrease = 20;
+            float touchedY = WORLD_HEIGHT - Gdx.input.getY() * WORLD_HEIGHT / Gdx.graphics.getHeight();
+            float touchedX = Gdx.input.getX() * WORLD_WIDTH / Gdx.graphics.getWidth();
             //Clicking destuns the player
-            if(touchedY >= player.getY() - hitboxIncrease && touchedY <= player.getY() + player.getHeight() + hitboxIncrease && touchedX >= player.getX() - hitboxIncrease  && touchedX <= player.getX() + player.getWidth() + hitboxIncrease && !player.isHeld()){
+            if (touchedY >= player.getY() - hitBoxIncrease && touchedY <= player.getY() + player.getHeight() + hitBoxIncrease && touchedX >= player.getX() - hitBoxIncrease && touchedX <= player.getX() + player.getWidth() + hitBoxIncrease && !player.isHeld()) {
                 player.deStun();
             }
             //Counts down till they naturally destun
-            else{ player.stunnedTimer(delta); }
+            else { player.stunnedTimer(delta); }
         }
-        player.update(delta);
+
+        player.update();
     }
 
-    private void updateCoin(){
-        updateCoinPosition();
+    private void updateCoin(float delta){
+        updateCoinPosition(delta);
         if(coins.size() < 6){ createNewCoin(); }
         removeCoin();
     }
 
-    private void updateCoinPosition(){
-        for(Coin coin : coins){ coin.update(coin.getDirection()); }
+    private void updateCoinPosition(float delta){
+        for(Coin coin : coins){ coin.update(coin.getDirection(), delta); }
     }
 
     private void createNewCoin(){
-        Coin coin = new Coin(MathUtils.randomBoolean(), size, speed);
+        Coin coin = new Coin(MathUtils.randomBoolean(), size, speed, coinBoost);
         coin.setTexture(coinTextures);
         coins.add(coin);
     }
@@ -280,7 +276,12 @@ class MainScreen extends ScreenAdapter {
                         //Once they're big enough we start increasing the speed for difficulty
                         if(size < 2) {size += 0.1f;}
                         else{speed += 0.1f;}
+                        if(score < 30){coinBoost = 0;}
+                        else if(score < 60){coinBoost = 0.7f;}
+                        else{coinBoost = 1.5f;}
                         player.updateSize(size);
+                        currentPlayerWidth = player.getWidth();
+                        knight.updateSize(currentPlayerWidth + 5);
                     }
                 }
                 else{score -= coin.getValue();}
@@ -291,15 +292,15 @@ class MainScreen extends ScreenAdapter {
         }
     }
 
-    private void updateBishops(){
-        updateBishopsPosition();
+    private void updateBishops(float delta){
+        updateBishopsPosition(delta);
         if(bishops.size() < 3){ createNewBishops(); }
         removeAndCollideBishops();
     }
 
-    private void updateBishopsPosition(){ for(Bishop bishop : bishops) {bishop.update(bishop.getDirection()); } }
+    private void updateBishopsPosition(float delta){ for(Bishop bishop : bishops) {bishop.update(bishop.getDirection(), delta); } }
 
-    private void createNewBishops(){ bishops.add(new Bishop(size, speed)); }
+    private void createNewBishops(){ bishops.add(new Bishop(currentPlayerWidth, speed, abbotSpriteSheetTexture)); }
 
     private void removeAndCollideBishops() {
         Vector<Bishop> removeBishop = new Vector<>();
@@ -339,13 +340,12 @@ class MainScreen extends ScreenAdapter {
         }
     }
 
-    private void updateKnight(){
+    private void updateKnight(float delta){
         updateKnightExistence();
-        updateKnightPosition();
-
+        updateKnightPosition(delta);
     }
 
-    private void updateKnightPosition(){ knight.update(knight.getDirection()); }
+    private void updateKnightPosition(float delta){ knight.update(knight.getDirection(), delta); }
 
     private void updateKnightExistence(){
         if (knight.getX() > 380 + knight.getWidth() || knight.getX() < -knight.getWidth() ||
@@ -354,65 +354,13 @@ class MainScreen extends ScreenAdapter {
         }
         if(knight.isColliding(player) && player.isInArena()){
             knight.updatePosition();
-            oldPlayerHeight = player.getHeight();
-            oldPlayerWidth = player.getWidth();
+            player.setOldWidth(player.getWidth());
+            player.setOldCoordinates(player.getX() + player.getWidth(), player.getY() + player.getWidth());
+            player.setPortalOpening(1);
             player.setFalling(true);
             player.setInArena(false);
             lives--;
         }
-    }
-
-    /*
-    Input: Void
-    Output: Void
-    Purpose: Draws the enemy/obstacle wireframe
-    */
-    private void renderEnemy(){
-        shapeRendererEnemy.setProjectionMatrix(camera.projection);      		                 //Screen set up camera
-        shapeRendererEnemy.setTransformMatrix(camera.view);            			                 //Screen set up camera
-        shapeRendererEnemy.begin(ShapeRenderer.ShapeType.Line);         		                 //Sets up to draw lines
-        for(Coin coin : coins){if(!coin.isGoodCoin()){coin.drawDebug(shapeRendererEnemy);}}
-        for(Bishop bishop: bishops){bishop.drawDebug(shapeRendererEnemy);}
-        shapeRendererEnemy.end();
-    }
-
-    /*
-    Input: Void
-    Output: Void
-    Purpose: Draws user wireframe
-    */
-    private void renderUser(){
-        shapeRendererUser.setProjectionMatrix(camera.projection);    //Screen set up camera
-        shapeRendererUser.setTransformMatrix(camera.view);           //Screen set up camera
-        shapeRendererUser.begin(ShapeRenderer.ShapeType.Line);       //Sets up to draw lines
-        player.drawDebug(shapeRendererUser);
-        shapeRendererUser.end();
-    }
-
-    /*
-    Input: Void
-    Output: Void
-    Purpose: Draws the background object and UI wireframes
-    */
-    private void renderBackground(){
-        shapeRendererBackground.setProjectionMatrix(camera.projection);                 //Screen set up camera
-        shapeRendererBackground.setTransformMatrix(camera.view);                        //Screen set up camera
-        shapeRendererBackground.begin(ShapeRenderer.ShapeType.Line);                    //Starts to draw
-        knight.drawDebug(shapeRendererBackground);
-        shapeRendererBackground.end();
-    }
-
-    /*
-    Input: Void
-    Output: Void
-    Purpose: Draws wireframe of the collectibles -- needs to be redone along with collectible objects
-    */
-    private void renderCollectible(){
-        shapeRendererCollectible.setProjectionMatrix(camera.projection);
-        shapeRendererCollectible.setTransformMatrix(camera.view);
-        shapeRendererCollectible.begin(ShapeRenderer.ShapeType.Line);
-        for(Coin coin : coins){if(coin.isGoodCoin()){coin.drawDebug(shapeRendererCollectible);}}
-        shapeRendererCollectible.end();
     }
 
     private void draw(){
@@ -423,7 +371,11 @@ class MainScreen extends ScreenAdapter {
         int y = (int) Gdx.input.getAccelerometerY();
         int z = (int) Gdx.input.getAccelerometerZ();
         batch.begin();
+        batch.draw(backgroundTexture, 0, 0, 400, WORLD_HEIGHT);
         for (Coin coin : coins){coin.draw(batch);}
+        for(Bishop bishop : bishops){bishop.draw(batch);}
+        knight.draw(batch);
+        batch.draw(UITexture, 400, 0);
         player.draw(batch);
         centerText(bitmapFont, "Score: " + (float) ((float)Math.round(score * 100.0) / 100.0), WORLD_WIDTH/2, 300);
         centerText(bitmapFont, "X: " + x, 40, 300);

@@ -1,6 +1,9 @@
 package com.orczuk.greedygobo.Objects;
 
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
@@ -8,13 +11,25 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class ParentObject {
 
+    protected Animation frontAnimation;
+    protected Animation backAnimation;
+    protected Animation rightAnimation;
+    protected Animation leftAnimation;
+    protected TextureRegion[][] spriteSheet;
+
+    protected float animationTime = 0;
+
+    protected float speed;  //Speed of the object
+    protected int direction = 0; //0 - Up, 1 = Down, 2 = Right, 3 = Left
+
+    protected Rectangle hitBox;
+
     //Garbage constructor for player
     ParentObject(){}
 
-    ParentObject(float baseSize, float size, float speed){
+    ParentObject(float size, float speed){
         this.speed = speed;
         direction = MathUtils.random(0,3);
-        value = MathUtils.random(1,size/baseSize);
         float x = 0;
         float y = 0;
         switch (direction){
@@ -40,12 +55,27 @@ public class ParentObject {
         spawn(x, y, size, size);
     }
 
+    protected void setUpSpriteSheet(Texture texture){
+        this.spriteSheet = new TextureRegion(texture).split(420, 420); //Breaks down the texture into tiles
+    }
 
-    protected float value;    //Value of the collected item
-    protected float speed;  //Speed of the object
-    protected int direction = 0; //0 - Up, 1 = Down, 2 = Right, 3 = Left
+    protected void setUpAnimation(){
+        frontAnimation= new Animation<>(0.2f, this.spriteSheet[0][0], this.spriteSheet[0][1],
+                this.spriteSheet[0][0], this.spriteSheet[0][2]);
+        frontAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
-    protected Rectangle hitBox;
+        backAnimation= new Animation<>(0.2f, this.spriteSheet[1][0], this.spriteSheet[1][1],
+                this.spriteSheet[1][0], this.spriteSheet[1][2]);
+        backAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
+        rightAnimation = new Animation<>(0.2f, this.spriteSheet[2][0], this.spriteSheet[2][1],
+                this.spriteSheet[2][0], this.spriteSheet[2][2]);
+        rightAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
+        leftAnimation = new Animation<>(0.2f, this.spriteSheet[3][0], this.spriteSheet[3][1],
+                this.spriteSheet[3][0], this.spriteSheet[3][2]);
+        leftAnimation.setPlayMode(Animation.PlayMode.LOOP);
+    }
 
     void spawn(float x, float y, float width, float height){ hitBox = new Rectangle(x, y, width, height); }
 
@@ -54,9 +84,9 @@ public class ParentObject {
     public float getY(){return hitBox.y;}
     public float getWidth(){return hitBox.width;}
     public float getHeight(){return hitBox.height;}
-    public float getValue(){return value;}
 
-    public void update(int direction){
+    public void update(int direction, float delta){
+        animationTime += delta;
         switch (direction){
             case 0:{
                 hitBox.x += speed;
@@ -84,6 +114,20 @@ public class ParentObject {
     */
     public boolean isColliding(PlayerCharacter playerCharacter) {
         return Intersector.overlaps(playerCharacter.hitBox, hitBox);
+    }
+
+    public void draw(SpriteBatch batch) {
+        TextureRegion currentFrame = (TextureRegion) frontAnimation.getKeyFrame(animationTime);
+        if (direction == 2) {
+            currentFrame = (TextureRegion) backAnimation.getKeyFrame(animationTime);
+        }
+        else if (direction == 0) {
+            currentFrame = (TextureRegion) rightAnimation.getKeyFrame(animationTime);
+        }
+        else if (direction == 1) {
+            currentFrame = (TextureRegion) leftAnimation.getKeyFrame(animationTime);
+        }
+        batch.draw(currentFrame, hitBox.x, hitBox.y, hitBox.width, hitBox.height);
     }
 
     /*
