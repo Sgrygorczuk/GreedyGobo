@@ -9,7 +9,7 @@ import javax.swing.SpringLayout;
 
 public class PlayerCharacter extends ParentObject {
 
-    protected float width = 15;  //Width of the hit box
+    protected float width = 10;  //Width of the hit box
     private float oldWidth;
     private float portalWidth = 0;
     private float oldX;
@@ -188,7 +188,7 @@ public class PlayerCharacter extends ParentObject {
             }
         }
         if(portalOpening != 0){ batch.draw(portalTexture, oldX, oldY, portalWidth, portalWidth);}
-        batch.draw(currentFrame, hitBox.x, hitBox.y, hitBox.width, hitBox.height);
+        batch.draw(currentFrame, hitBox.x - 2.5f, hitBox.y - 2.5f, hitBox.width + 5, hitBox.height + 5);
     }
 
 }

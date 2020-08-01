@@ -51,7 +51,7 @@ public class ParentObject {
             }
         }
         if(direction < 2){y = MathUtils.random(size,320- size);}
-        else{x = MathUtils.random(size,480- size);}
+        else{x = MathUtils.random(size,380 - size);}
         spawn(x, y, size, size);
     }
 
@@ -127,7 +127,7 @@ public class ParentObject {
         else if (direction == 1) {
             currentFrame = (TextureRegion) leftAnimation.getKeyFrame(animationTime);
         }
-        batch.draw(currentFrame, hitBox.x, hitBox.y, hitBox.width, hitBox.height);
+        batch.draw(currentFrame, hitBox.x - 2.5f, hitBox.y - 2.5f, hitBox.width + 5, hitBox.height + 5);
     }
 
     /*

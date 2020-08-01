@@ -1,4 +1,4 @@
-#Thu Jul 23 18:14:05 EDT 2020
+#Fri Jul 31 17:05:37 EDT 2020
 base.0=/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/build/intermediates/dex/debug/mergeDexDebug/classes.dex
 path.0=classes.dex
 renamed.0=classes.dex
