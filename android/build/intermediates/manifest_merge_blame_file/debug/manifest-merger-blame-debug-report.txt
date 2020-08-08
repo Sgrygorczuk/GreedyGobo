@@ -20,37 +20,48 @@
 14-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:7:9-35
 15        android:appCategory="game"
 15-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:10:9-35
-16        android:debuggable="true"
-17        android:icon="@drawable/ic_launcher"
-17-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:8:9-45
-18        android:isGame="true"
-18-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:9:9-30
-19        android:label="@string/app_name"
-19-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:11:9-41
-20        android:testOnly="true"
-21        android:theme="@style/GdxTheme" >
-21-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:12:9-40
-22        <activity
-22-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:13:9-22:20
-23            android:name="com.orczuk.greedygobo.AndroidLauncher"
-23-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:14:13-65
-24            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|screenLayout"
-24-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:17:13-107
-25            android:label="@string/app_name"
-25-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:15:13-45
-26            android:screenOrientation="landscape" >
-26-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:16:13-50
-27            <intent-filter>
-27-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:18:13-21:29
-28                <action android:name="android.intent.action.MAIN" />
-28-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:19:17-69
-28-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:19:25-66
-29
-30                <category android:name="android.intent.category.LAUNCHER" />
-30-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:20:17-77
-30-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:20:27-74
-31            </intent-filter>
-32        </activity>
-33    </application>
+16        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+16-->[androidx.core:core:1.0.0] /home/sebastian/.gradle/caches/transforms-2/files-2.1/89e21a6bff28fe39edf0c092c9b3d614/core-1.0.0/AndroidManifest.xml:22:18-86
+17        android:debuggable="true"
+18        android:icon="@drawable/ic_launcher"
+18-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:8:9-45
+19        android:isGame="true"
+19-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:9:9-30
+20        android:label="@string/app_name"
+20-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:11:9-41
+21        android:testOnly="true"
+22        android:theme="@style/GdxTheme" >
+22-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:12:9-40
+23        <activity
+23-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:13:9-22:20
+24            android:name="com.orczuk.greedygobo.AndroidLauncher"
+24-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:14:13-65
+25            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|screenLayout"
+25-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:17:13-107
+26            android:label="@string/app_name"
+26-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:15:13-45
+27            android:screenOrientation="landscape" >
+27-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:16:13-50
+28            <intent-filter>
+28-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:18:13-21:29
+29                <action android:name="android.intent.action.MAIN" />
+29-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:19:17-69
+29-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:19:25-66
+30
+31                <category android:name="android.intent.category.LAUNCHER" />
+31-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:20:17-77
+31-->/home/sebastian/Projects/LibGDX_Personal/GreedyGobo/android/AndroidManifest.xml:20:27-74
+32            </intent-filter>
+33        </activity>
 34
-35</manifest>
+35        <service
+35-->[androidx.room:room-runtime:2.2.5] /home/sebastian/.gradle/caches/transforms-2/files-2.1/bf87434d5a48741d632e28e0f0fea53f/room-runtime-2.2.5/AndroidManifest.xml:25:9-28:40
+36            android:name="androidx.room.MultiInstanceInvalidationService"
+36-->[androidx.room:room-runtime:2.2.5] /home/sebastian/.gradle/caches/transforms-2/files-2.1/bf87434d5a48741d632e28e0f0fea53f/room-runtime-2.2.5/AndroidManifest.xml:26:13-74
+37            android:directBootAware="true"
+37-->[androidx.room:room-runtime:2.2.5] /home/sebastian/.gradle/caches/transforms-2/files-2.1/bf87434d5a48741d632e28e0f0fea53f/room-runtime-2.2.5/AndroidManifest.xml:27:13-43
+38            android:exported="false" />
+38-->[androidx.room:room-runtime:2.2.5] /home/sebastian/.gradle/caches/transforms-2/files-2.1/bf87434d5a48741d632e28e0f0fea53f/room-runtime-2.2.5/AndroidManifest.xml:28:13-37
+39    </application>
+40
+41</manifest>

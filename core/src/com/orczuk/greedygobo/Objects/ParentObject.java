@@ -55,8 +55,26 @@ public class ParentObject {
         spawn(x, y, size, size);
     }
 
-    protected void setUpSpriteSheet(Texture texture){
-        this.spriteSheet = new TextureRegion(texture).split(420, 420); //Breaks down the texture into tiles
+    public ParentObject(float speed){
+        this.speed = speed;
+        float size =  MathUtils.random(10,25);
+        direction = 1;
+        float x = 480 - size;
+        float y = MathUtils.random(50, 380);
+        spawn(x, y, size, size);
+    }
+
+    public void setUpLeafTexture(TextureRegion[][] texture){
+        spriteSheet = texture;
+        int leafColor = MathUtils.random(0, 2);
+        frontAnimation= new Animation<>(0.2f, this.spriteSheet[0][leafColor]);
+        frontAnimation.setPlayMode(Animation.PlayMode.LOOP);
+        leftAnimation = new Animation<>(0.2f, this.spriteSheet[0][leafColor]);
+        leftAnimation.setPlayMode(Animation.PlayMode.LOOP);
+    }
+
+    protected void setUpSpriteSheet(TextureRegion[][] texture){
+        this.spriteSheet = texture;
     }
 
     protected void setUpAnimation(){
@@ -105,6 +123,11 @@ public class ParentObject {
                 break;
             }
         }
+    }
+
+    public void updateLeaf(){
+        hitBox.x -= speed;
+        hitBox.y = hitBox.y + 3 *MathUtils.sin(MathUtils.PI * hitBox.x/100);
     }
 
     /*

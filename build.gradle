@@ -11,7 +11,7 @@ buildscript {
     }
     dependencies {
         classpath 'org.wisepersist:gwt-gradle-plugin:1.0.9'
-        classpath 'com.android.tools.build:gradle:4.0.0'
+        classpath 'com.android.tools.build:gradle:4.0.1'
         classpath 'com.mobidevelop.robovm:robovm-gradle-plugin:2.3.8'
         
 
@@ -50,6 +50,16 @@ project(":desktop") {
         api "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         
+    }
+}
+
+project(":desktop") {
+    apply plugin: "java"
+    dependencies {
+        implementation project(":core")
+        implementation "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     }
 }
 

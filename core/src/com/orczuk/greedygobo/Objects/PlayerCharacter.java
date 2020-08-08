@@ -35,7 +35,7 @@ public class PlayerCharacter extends ParentObject {
     private float stunnedTimer = STUNNED_TIME;                        //Counter that checks if it reached the end of time
 
 
-    public PlayerCharacter(float x, float y, Texture goboSpriteSheet, Texture portalTexture) {
+    public PlayerCharacter(float x, float y, TextureRegion[][] goboSpriteSheet, Texture portalTexture) {
         super();
         speed = 3;
         direction = 1; //Down
@@ -124,6 +124,8 @@ public class PlayerCharacter extends ParentObject {
 
     public float getPortalWidth(){return  portalWidth;}
     public void setPortalWidth(float width){portalWidth = width;}
+
+    public float getSpeedY(){return speedY;}
 
     public float getOldX(){return  oldX;}
     public float getOldY(){return  oldY;}
