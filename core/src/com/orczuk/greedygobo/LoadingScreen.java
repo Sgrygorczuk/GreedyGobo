@@ -11,21 +11,9 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Scanner;
-import java.util.Vector;
 
 public class LoadingScreen extends ScreenAdapter{
     //Screen Dimensions
@@ -33,15 +21,21 @@ public class LoadingScreen extends ScreenAdapter{
     private static final float WORLD_HEIGHT = 320;
 
     //Visual objects
-    private ShapeRenderer shapeRenderer;
-    private SpriteBatch batch;			 //Batch that holds all of the textures
+    private SpriteBatch batch = new SpriteBatch();			 //Batch that holds all of the textures
     private Viewport viewport;
     private Camera camera;
 
+    //The game object that keeps track of the settings
     private GreedyGobo greedyGobo;
 
-    //State of the progress bar
-    private float progress = 0;
+    //Logo that's displayed when the game first loads
+    private Texture logoTexture;
+
+    //Timing variables, keeps the logo on for at least 2 second
+    private boolean logoDoneFlag = false;
+    private static final float LOGO_TIME = 2F;
+    private float logoTimer = LOGO_TIME;
+
 
     /*
     Input: SpaceHops
@@ -88,14 +82,19 @@ public class LoadingScreen extends ScreenAdapter{
     Purpose: Loads all the data needed for the assetmanager
     */
     private void loadAssets(){
+        //Logo that's displayed during loading
+        logoTexture = new Texture(Gdx.files.internal("Sprites/Logo.png"));
+
         //Load the font
         BitmapFontLoader.BitmapFontParameter bitmapFontParameter = new BitmapFontLoader.BitmapFontParameter();
         bitmapFontParameter.atlasName = "font_assets.atlas";
         greedyGobo.getAssetManager().load("Fonts/GreedyGobo.fnt", BitmapFont.class, bitmapFontParameter);
 
+        //Loading the music
         greedyGobo.getAssetManager().load("Music/GoboLevelTheme.wav", Music.class);
         greedyGobo.getAssetManager().load("Music/GoboMainMenuTheme.wav", Music.class);
 
+        //Loading all of the SFX
         greedyGobo.getAssetManager().load("SFX/Abbot.wav", Sound.class);
         greedyGobo.getAssetManager().load("SFX/Knight.wav", Sound.class);
         greedyGobo.getAssetManager().load("SFX/Coin.wav", Sound.class);
@@ -104,10 +103,7 @@ public class LoadingScreen extends ScreenAdapter{
         greedyGobo.getAssetManager().load("SFX/Bag.wav", Sound.class);
         greedyGobo.getAssetManager().load("SFX/Drop.wav", Sound.class);
         greedyGobo.getAssetManager().load("SFX/Button.wav", Sound.class);
-
-
-        //Load all the sound effects
-        //paladins.getAssetManager().load("SoundEffects/PowerDownButton.wav", Sound.class);
+        greedyGobo.getAssetManager().load("SFX/HighScore.mp3", Sound.class);
     }
 
     /*
@@ -117,7 +113,8 @@ public class LoadingScreen extends ScreenAdapter{
     */
     @Override
     public void render(float delta) {
-        update();       //Update the variables
+        update(delta);       //Update the variables
+        draw();
     }
 
     /*
@@ -125,9 +122,40 @@ public class LoadingScreen extends ScreenAdapter{
     Output: Void
     Purpose: Updates the variable of the progress bar, when the whole thing is load it turn on game screen
     */
-    private void update() {
-        if (greedyGobo.getAssetManager().update()) { greedyGobo.setScreen(new MenuScreen(greedyGobo)); }
-        else { progress = greedyGobo.getAssetManager().getProgress(); }
+    private void update(float delta) {
+        updateTimer(delta);
+        if (greedyGobo.getAssetManager().update() && logoDoneFlag) { greedyGobo.setScreen(new MenuScreen(greedyGobo)); }
+        else {greedyGobo.getAssetManager().getProgress();}
+    }
+
+    /*
+    Input: Delta, timing
+    Output: Void
+    Purpose: Counts down until the logo has been on screen long enough
+    */
+    private void updateTimer(float delta) {
+        logoTimer -= delta;
+        if (logoTimer <= 0) {
+            logoTimer = LOGO_TIME;
+            logoDoneFlag = true;
+        }
+    }
+
+    /*
+    Input: Void
+    Output: Void
+    Purpose: Draws the progress
+    */
+    private void draw() {
+        clearScreen();
+        //Viewport/Camera projection
+        batch.setProjectionMatrix(camera.projection);
+        batch.setTransformMatrix(camera.view);
+        //Batch setting up texture before drawing buttons
+        batch.begin();
+        batch.draw(logoTexture, WORLD_WIDTH/2f - 64, WORLD_HEIGHT/2f - 64, 128, 128);
+        batch.end();
+
     }
 
     /*
@@ -143,27 +171,10 @@ public class LoadingScreen extends ScreenAdapter{
     /*
     Input: Void
     Output: Void
-    Purpose: Draws the progress
-    */
-    private void draw() {
-        //Viewport/Camera projection
-        batch.setProjectionMatrix(camera.projection);
-        batch.setTransformMatrix(camera.view);
-        //Batch setting up texture before drawing buttons
-        batch.begin();
-        batch.end();
-
-    }
-
-
-    /*
-    Input: Void
-    Output: Void
     Purpose: Gets rid of all visuals
     */
     @Override
     public void dispose() {
+        logoTexture.dispose();
     }
-
-
 }

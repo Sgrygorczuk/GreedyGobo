@@ -27,15 +27,13 @@ public class AndroidLauncher extends AndroidApplication {
 	Output: Void
 	Purpose: Saves the data to the local storage
 	*/
-	TimerTask saveTask = new TimerTask() {
+	TimerTask updateTask = new TimerTask() {
 		@Override
 		public void run() {
 			//Sets up a info to input into the database
-			SaveEntry saveEntry = new SaveEntry(greedyGobo.getCurrentHighScore());
-			//Deletes the old values
-			saveDB.saveDao().delete();
-			//Saves the new values
-			saveDB.saveDao().insertAll(saveEntry);
+			SaveEntry saveEntry = new SaveEntry(greedyGobo.getCurrentHighScore(), greedyGobo.getHoly(), greedyGobo.getBlue(), greedyGobo.getToxic());
+			//Updates that input
+			saveDB.saveDao().updateEntry(saveEntry);
 		}
 	};
 
@@ -48,28 +46,35 @@ public class AndroidLauncher extends AndroidApplication {
 		@Override
 		public void run() {
 			//If we have never saved data make an initial save then load it
-			if (saveDB.saveDao().getAll().isEmpty()) { saveTask.run(); }
+			if (saveDB.saveDao().getAll().isEmpty()) {
+				SaveEntry saveEntry = new SaveEntry(greedyGobo.getCurrentHighScore(), greedyGobo.getHoly(), greedyGobo.getBlue(), greedyGobo.getToxic());
+				saveDB.saveDao().insertAll(saveEntry);
+			}
+			//Loads the data
 			greedyGobo.setCurrentHighScore(saveDB.saveDao().getAll().get(0).currentHighScore);
+			greedyGobo.setHoly(saveDB.saveDao().getAll().get(0).holyFlag);
+			greedyGobo.setBlue(saveDB.saveDao().getAll().get(0).blueFlag);
+			greedyGobo.setToxic(saveDB.saveDao().getAll().get(0).toxicFlag);
 
 		}
 	};
 
 	SaveDatabase.AppDatabase saveDB;			//The database that accesses local storage
 	//The app
-	GreedyGobo greedyGobo = new GreedyGobo();
+	GreedyGobo greedyGobo = new GreedyGobo(true);
 
 
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		saveDB = Room.databaseBuilder(getApplicationContext(), SaveDatabase.AppDatabase.class, "saveentry").build();
-		timer.schedule(loadTask, 0);
+		timer.schedule(loadTask, 0);									//Loads in data from the saved file
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); //Keeps the screen lit up
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 		config.useAccelerometer = true;										//Allows the use of Accelerometer readings
 		config.useImmersiveMode = true;										//Makes the navigation bar go away
-		initialize(greedyGobo, config);
+		initialize(greedyGobo, config);										//Starts the game
 		//Every 60 sec save the data to data base
-		timer.scheduleAtFixedRate(saveTask, 3000, 6000);
+		timer.scheduleAtFixedRate(updateTask, 3000, 6000);
 	}
 }

@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "applicationId": "com.orczuk.greedygobo",
+  "variantType": "BASE_APK",
+  "elements": [
+    {
+      "outputType": {
+        "type": "BUNDLE_MANIFEST"
+      },
+      "apkData": {
+        "type": "MAIN",
+        "splits": [],
+        "versionCode": 2,
+        "versionName": "1.0",
+        "outputFile": "android-release.apk",
+        "fullName": "release",
+        "baseName": "release",
+        "dirName": ""
+      },
+      "path": "AndroidManifest.xml",
+      "properties": {
+        "packageId": "com.orczuk.greedygobo",
+        "split": "",
+        "minSdkVersion": "14"
+      }
+    }
+  ]
+}

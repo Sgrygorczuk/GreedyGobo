@@ -1,6 +1,5 @@
 package com.orczuk.greedygobo.Objects;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -11,27 +10,42 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class ParentObject {
 
+    //The movement animations
     protected Animation frontAnimation;
     protected Animation backAnimation;
     protected Animation rightAnimation;
     protected Animation leftAnimation;
+
+    //Sprite sheet used
     protected TextureRegion[][] spriteSheet;
 
+    //Current animation frame time
     protected float animationTime = 0;
 
     protected float speed;  //Speed of the object
-    protected int direction = 0; //0 - Up, 1 = Down, 2 = Right, 3 = Left
+    protected int direction = 0; //1 - Up, 0 = Down, 2 = Right, 3 = Left
 
+    //Hit box
     protected Rectangle hitBox;
 
-    //Garbage constructor for player
+    /*
+    Input: Void
+    Output: Void;
+    Purpose: Garbage constructor fo the player object
+    */
     ParentObject(){}
 
+    /*
+    Input: Size and speed of he object
+    Output: Void;
+    Purpose: Constructor used of coins/abbots and knights
+    */
     ParentObject(float size, float speed){
-        this.speed = speed;
-        direction = MathUtils.random(0,3);
+        this.speed = speed;                 //Sets speed
+        direction = MathUtils.random(0,3);  //Picks random direction
         float x = 0;
         float y = 0;
+        //Based on direction spawns on the opposite side of the screen
         switch (direction){
             case 0:{
                 x = -size;
@@ -50,33 +64,18 @@ public class ParentObject {
                 break;
             }
         }
+        //Based on direction randomly chooses the x or y
         if(direction < 2){y = MathUtils.random(size,320- size);}
         else{x = MathUtils.random(size,380 - size);}
-        spawn(x, y, size, size);
+        //Creates the object
+        hitBox = new Rectangle(x, y, size, size);
     }
 
-    public ParentObject(float speed){
-        this.speed = speed;
-        float size =  MathUtils.random(10,25);
-        direction = 1;
-        float x = 480 - size;
-        float y = MathUtils.random(50, 380);
-        spawn(x, y, size, size);
-    }
-
-    public void setUpLeafTexture(TextureRegion[][] texture){
-        spriteSheet = texture;
-        int leafColor = MathUtils.random(0, 2);
-        frontAnimation= new Animation<>(0.2f, this.spriteSheet[0][leafColor]);
-        frontAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        leftAnimation = new Animation<>(0.2f, this.spriteSheet[0][leafColor]);
-        leftAnimation.setPlayMode(Animation.PlayMode.LOOP);
-    }
-
-    protected void setUpSpriteSheet(TextureRegion[][] texture){
-        this.spriteSheet = texture;
-    }
-
+    /*
+    Input: Void
+    Output: Void
+    Purpose: Sets up the animation loops in all of the directions
+    */
     protected void setUpAnimation(){
         frontAnimation= new Animation<>(0.2f, this.spriteSheet[0][0], this.spriteSheet[0][1],
                 this.spriteSheet[0][0], this.spriteSheet[0][2]);
@@ -95,14 +94,39 @@ public class ParentObject {
         leftAnimation.setPlayMode(Animation.PlayMode.LOOP);
     }
 
-    void spawn(float x, float y, float width, float height){ hitBox = new Rectangle(x, y, width, height); }
-
+    /*
+    Input: Void
+    Output: Void
+    Purpose: Tells us which direction they are facing
+    */
     public int getDirection(){return direction;}
-    public float getX(){return hitBox.x;}
-    public float getY(){return hitBox.y;}
-    public float getWidth(){return hitBox.width;}
-    public float getHeight(){return hitBox.height;}
 
+    /*
+    Input: Void
+    Output: Void
+    Purpose: Tells us their x coordinate
+    */
+    public float getX(){return hitBox.x;}
+
+    /*
+    Input: Void
+    Output: Void
+    Purpose: Tells us their y coordinate
+    */
+    public float getY(){return hitBox.y;}
+
+    /*
+    Input: Void
+    Output: Void
+    Purpose: Tells us their dimensions
+    */
+    public float getWidth(){return hitBox.width;}
+
+    /*
+    Input: Void
+    Output: Void
+    Purpose: Updates the position of the object
+    */
     public void update(int direction, float delta){
         animationTime += delta;
         switch (direction){
@@ -125,20 +149,18 @@ public class ParentObject {
         }
     }
 
-    public void updateLeaf(){
-        hitBox.x -= speed;
-        hitBox.y = hitBox.y + 3 *MathUtils.sin(MathUtils.PI * hitBox.x/100);
-    }
-
     /*
     Input: Void
     Output: Void
-    Purpose:
+    Purpose: Tells us if they collided with the player
     */
-    public boolean isColliding(PlayerCharacter playerCharacter) {
-        return Intersector.overlaps(playerCharacter.hitBox, hitBox);
-    }
+    public boolean isColliding(PlayerCharacter playerCharacter) { return Intersector.overlaps(playerCharacter.hitBox, hitBox); }
 
+    /*
+    Input: Sprite Batch
+    Output: Void
+    Purpose: Draws the current frame of animation
+    */
     public void draw(SpriteBatch batch) {
         TextureRegion currentFrame = (TextureRegion) frontAnimation.getKeyFrame(animationTime);
         if (direction == 2) {

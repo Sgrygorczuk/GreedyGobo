@@ -8,7 +8,13 @@ import androidx.room.PrimaryKey;
 public class SaveEntry {
 
     //Gets all the data to the entry
-    public SaveEntry(String currentHighScore){ this.currentHighScore = currentHighScore; }
+    public SaveEntry(String currentHighScore, Boolean holyFlag, Boolean blueFlag, Boolean toxicFlag){
+        uid = 0;
+        this.currentHighScore = currentHighScore;
+        this.holyFlag = holyFlag;
+        this.blueFlag = blueFlag;
+        this.toxicFlag = toxicFlag;
+    }
 
     @PrimaryKey
     public int uid;
@@ -16,7 +22,11 @@ public class SaveEntry {
     //Break down of the table
     @ColumnInfo(name = "currentHighScore")
     public String currentHighScore;
+    @ColumnInfo(name = "holyFlag")
+    public Boolean holyFlag;
+    @ColumnInfo(name = "blueFlag")
+    public Boolean blueFlag;
+    @ColumnInfo(name = "toxicFlag")
+    public Boolean toxicFlag;
 
-    public void delete() {
-    }
 }
