@@ -9,9 +9,11 @@ Play:
 
 Screenshots:
 
-<img src="https://img.itch.zone/aW1hZ2UvNzI3NDI5LzQwMzg5OTYuanBn/347x500/t1BSmq.jpg" width="400">
-<img src="https://img.itch.zone/aW1hZ2UvNzI3NDI5LzQwMzg5OTguanBn/347x500/%2FvzTuh.jpg" width="400">
+<img src="https://img.itch.zone/aW1hZ2UvNzI3NDI5LzQwMzg5OTYuanBn/347x500/t1BSmq.jpg">
+<img src="https://img.itch.zone/aW1hZ2UvNzI3NDI5LzQwMzg5OTguanBn/347x500/%2FvzTuh.jpg">
 
+Video: 
+- [Greedy Gobo Gameplay](https://www.youtube.com/watch?v=y5YrK5MJUTw)
 
 Controls:
 Use the phone tilting to control Gobo as he ducks and dives between the Abbots and Knights  in attempt to fill his sack with the precious metals! 
