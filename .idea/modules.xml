@@ -2,12 +2,12 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/GreedyGobo.iml" filepath="$PROJECT_DIR$/.idea/modules/GreedyGobo.iml" group="GreedyGobo" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/android/android.iml" filepath="$PROJECT_DIR$/.idea/modules/android/android.iml" group="GreedyGobo/android" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core.iml" group="GreedyGobo/core" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/desktop/desktop.iml" filepath="$PROJECT_DIR$/.idea/modules/desktop/desktop.iml" group="GreedyGobo/desktop" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/html/html.iml" filepath="$PROJECT_DIR$/.idea/modules/html/html.iml" group="GreedyGobo/html" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ios/ios.iml" filepath="$PROJECT_DIR$/.idea/modules/ios/ios.iml" group="GreedyGobo/ios" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/GreedyGobo.iml" filepath="$PROJECT_DIR$/.idea/modules/GreedyGobo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/android/GreedyGobo.android.iml" filepath="$PROJECT_DIR$/.idea/modules/android/GreedyGobo.android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/GreedyGobo.core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/GreedyGobo.core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/desktop/GreedyGobo.desktop.iml" filepath="$PROJECT_DIR$/.idea/modules/desktop/GreedyGobo.desktop.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/html/GreedyGobo.html.iml" filepath="$PROJECT_DIR$/.idea/modules/html/GreedyGobo.html.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ios/GreedyGobo.ios.iml" filepath="$PROJECT_DIR$/.idea/modules/ios/GreedyGobo.ios.iml" />
     </modules>
   </component>
 </project>

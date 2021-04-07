@@ -18,6 +18,8 @@ Video:
 Controls:
 Use the phone tilting to control Gobo as he ducks and dives between the Abbots and Knights  in attempt to fill his sack with the precious metals! 
 
+The GitHub respiratory only has silent tracks, the actual music is owned by [Yuriy Lehki](https://yuriylehki.weebly.com/)
+
 Copyright © 2020 [Sebastian Grygorczuk](https://orczuk.github.io/)
 
 Released under [GPLv3](gpl-3.0.txt)
